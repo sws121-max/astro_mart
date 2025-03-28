@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pandit Consultation</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            font-family: 'Arial', sans-serif;
+            margin: 20px;
+            transition: background 0.5s ease;
+            color: #333;
+        }
+        .form-section {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+            transition: transform 0.3s;
+        }
+        .form-section:hover {
+            transform: scale(1.02);
+        }
+        h1, h2 {
+            color: #343a40;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            transition: background-color 0.3s;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+        .form-control {
+            transition: all 0.3s ease;
+            border-radius: 0.5rem;
+            border: 2px solid #fff;
+            background-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .form-control:focus {
+            border-color: #feb47b;
+            box-shadow: 0 0 10px rgba(254, 180, 123, 0.5), 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        #readings {
+            max-height: 500px;
+            overflow-y: auto;
+            margin-top: 0px;
+            
+            padding: 10px;
+            
+            height:500px;
+            transition: background-color 0.3s ease;
+        }
+        .reading {
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .reading.visible {
+            opacity: 1;
+        }
+        .user-question {
+            background-color: #f1f1f1;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size:12px;
+        }
+        .reading-response {
+            background-color: #e6f2ff;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size:12px;
+        }
+        .send-btn {
+            cursor: pointer;
+        }
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #333;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 10px 10px 0 0;
+        }
+        .chat-box {
+            display: none;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+
+            background-image: url('static/theme2.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            
+        }
+        .greeting-message {
+            text-align: left; /* Align text to the left */
+            font-size: 0.9rem; /* Set smaller font size */
+            color: #333; /* Optional: Set text color */
+            
+        }
+        .greeting-box {
+            text-align: left; /* Align text to the left */
+            font-size: 0.9rem; /* Set smaller font size */
+            color: #333; /* Optional: Set text color */
+            max-width: 300px; /* Set a maximum width for the box */
+            margin-left: auto; /* Align to the right */
+            margin-right: 0; /* Remove right margin */
+            border-radius: 10px; /* Optional: Rounded corners */
+        }
+        .birth-details {
+            text-align: left; /* Align text to the left */
+            font-size: 0.9rem; /* Set smaller font size */
+            color: #333; /* Optional: Set text color */
+            
+        }
+        
+        .input-group {
+            padding: 10px;
+        }
+        
+    </style>
+    <script>
+        const statesAndCities = {
+            "Andhra Pradesh": ["Visakhapatnam", "Vijayawada", "Guntur"],
+            "Arunachal Pradesh": ["Itanagar", "Tawang"],
+            "Assam": ["Guwahati", "Dibrugarh"],
+            "Bihar": ["Patna", "Gaya", "Bhagalpur"],
+            "Chhattisgarh": ["Raipur", "Bilaspur", "Durg"],
+            "Goa": ["Panaji", "Margao"],
+            "Gujarat": ["Ahmedabad", "Surat", "Vadodara"],
+            "Haryana": ["Chandigarh", "Faridabad", "Gurugram"],
+            "Himachal Pradesh": ["Shimla", "Manali"],
+            "Jharkhand": ["Ranchi", "Jamshedpur"],
+            "Karnataka": ["Bengaluru", "Mysuru"],
+            "Kerala": ["Thiruvananthapuram", "Kochi"],
+            "Madhya Pradesh": ["Bhopal", "Indore"],
+            "Maharashtra": ["Mumbai", "Pune"],
+            "Manipur": ["Imphal"],
+            "Meghalaya": ["Shillong"],
+            "Mizoram": ["Aizawl"],
+            "Nagaland": ["Kohima"],
+            "Odisha": ["Bhubaneswar", "Cuttack"],
+            "Punjab": ["Chandigarh", "Amritsar"],
+            "Rajasthan": ["Jaipur", "Udaipur"],
+            "Sikkim": ["Gangtok"],
+            "Tamil Nadu": ["Chennai", "Coimbatore"],
+            "Telangana": ["Hyderabad"],
+            "Tripura": ["Agartala"],
+            "Uttar Pradesh": ["Lucknow", "Kanpur"],
+            "Uttarakhand": ["Dehradun"],
+            "West Bengal": ["Kolkata", "Siliguri"]
+        };
+
+        const responses = {
+            "Career": [
+                "Jupiter's Influence: Based on your birth chart, Jupiter's position indicates excellent career growth in the next 6 months.",
+                "Saturn's Challenges: Saturn's influence suggests a period of professional challenges, but they will lead to significant growth.",
+                "Networking Opportunities: Look for networking events; they may open new doors.",
+                "Skill Development: Consider taking courses to enhance your skills and marketability.",
+                "You will find new job opportunities in the next 3 to 6 months."
+            ],
+            "Job": [
+                "Based on your skills and interests, fields like technology, healthcare, or finance may suit you well.",
+                "Consider exploring roles in creative industries if you have a passion for design or arts.",
+                "Your analytical skills suggest that data science or engineering could be a good fit.",
+                "Look into opportunities in education or training if you enjoy helping others learn.",
+                "The stars indicate that you may find success in management or leadership roles."
+            ],
+            "Marriage": [
+                "The next 6 to 8 months are favorable for love and commitment; stay open to possibilities.",
+                "Romantic Prospects: Your chart indicates a strong possibility of marriage within the next year.",
+                "Relationship Growth: Focus on nurturing your current relationship; it may lead to a proposal.",
+                "You can expect to get married by next March.",
+                "Family Influence: Family support will play a significant role in your marriage prospects."
+            ],
+            "Money": [
+                "Financial Stability: Your financial situation is set to improve significantly in the coming months.",
+                "Investment Opportunities: Consider investing wisely; potential returns are high.",
+                "Budgeting Advice: Focus on budgeting and saving; it will help you achieve your financial goals.",
+                "Unexpected Gains: Be prepared for unexpected financial gains in the near future.",
+                "Your financial condition will stabilize in the next 6 months, with opportunities for growth."
+            ],
+            "Love Life": [
+                "Venus' Impact: Venus in your chart suggests a significant romantic connection in the near future.",
+                "Harmonious Relationships: Your birth chart shows a harmonious period for relationships starting from next month.",
+                "Communication: Open and honest communication will strengthen your bonds.",
+                "Self-Love: Focus on self-love to attract positive relationships."
+            ],
+            "Health": [
+                "Vitality: Your birth chart indicates strong vitality, but pay attention to stress management.",
+                "Exercise Focus: Mars' position suggests focusing on physical exercise would be beneficial.",
+                "Nutrition: Consider a balanced diet to support your energy levels.",
+                "Mental Health: Incorporate mindfulness practices to enhance mental clarity."
+            ]
+        };
+        
+        
+
+        let timer;
+        let timeLeft = 500; 
+        let chatActive = true; 
+        let previousChatContent = ''; 
+
+        function updateCities() {
+            const stateSelect = document.getElementById('state');
+            const citySelect = document.getElementById('city');
+            const selectedState = stateSelect.value;
+
+            citySelect.innerHTML = '<option value="">Select City</option>';
+
+            if (selectedState && statesAndCities[selectedState]) {
+                statesAndCities[selectedState].forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city;
+                    option.textContent = city;
+                    citySelect.appendChild(option);
+                });
+            }
+        }
+
+        function startTimer() {
+            timer = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    chatActive = false; 
+                    document.getElementById('timer-message').innerText = "Time is up! Please recharge.";
+                    document.getElementById('timer').innerText = "00:00";
+                    document.getElementById('chat-box').style.display = 'none'; 
+                    showRechargeSegment(); 
+                } else {
+                    document.getElementById('timer').innerText = timeLeft;
+                    document.getElementById('timer-display').innerText = timeLeft; // Update timer display in chat header
+                    timeLeft--;
+                }
+            }, 1000);
+        }
+        function calculateAmounts() {
+            const rechargeAmountInput = document.getElementById('recharge-amount');
+            const gstInput = document.getElementById('gst');
+            const platformFeeInput = document.getElementById('platform-fee');
+            const payableAmountInput = document.getElementById('payable-amount');
+
+            const rechargeAmount = parseFloat(rechargeAmountInput.value.replace('₹ ', '').replace(',', '')) || 0;
+
+            const gst = rechargeAmount * 0.18; 
+            const platformFee = rechargeAmount * 0.02; 
+            const payableAmount = rechargeAmount + gst + platformFee; 
+
+            gstInput.value = `₹ ${gst.toFixed(2)}`;
+            platformFeeInput.value = `₹ ${platformFee.toFixed(2)}`;
+            payableAmountInput.value = `₹ ${payableAmount.toFixed(2)}`;
+        }
+
+        function showRechargeSegment() {
+            const rechargeSegment = document.createElement('div');
+            rechargeSegment.innerHTML = `
+                <h3>Please Recharge</h3>
+                <button class="btn btn-success" onclick="startRecharge()">Start Recharge</button>
+                <div id="payment-section" style="display: none;">
+                    <h4>Payment Information</h4>
+                    <div class="form-group">
+                        <label for="recharge-amount">Recharge Amount</label>
+                        <input type="text" class="form-control" id="recharge-amount" value="₹ 50" oninput="calculateAmounts()">
+                    </div>
+                    <div class="form-group">
+                        <label for="gst">GST (18%)</label>
+                        <input type="text" class="form-control" id="gst" value="₹ 9" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="platform-fee">Platform Fee (2%)</label>
+                        <input type="text" class="form-control" id="platform-fee" value="₹ 1" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="payable-amount">Payable Amount</label>
+                        <input type="text" class="form-control" id="payable-amount" value="₹ 60" readonly>
+                    </div>
+                    <div class="text-center">
+                        <button class="btn btn-primary" id="checkout-button" onclick="completeRecharge()">Proceed to Pay</button>
+                    </div>
+                    <div class="text-center mt-3">
+                        <small>Secured by Trusted Indian Banks</small>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(rechargeSegment);
+        
+            document.querySelector('.btn-success').addEventListener('click', () => {
+                document.getElementById('payment-section').style.display = 'block';
+                calculateAmounts(); 
+            });
+        }
+
+        function completeRecharge() {
+            const rechargeDoneMessage = document.createElement('div');
+            rechargeDoneMessage.innerHTML = `<h3>Recharge Done!</h3>`;
+            document.body.innerHTML = '';
+            document.body.appendChild(rechargeDoneMessage);
+
+            setTimeout(() => {
+                document.body.innerHTML = `
+                    <div class="container mt-5"> 
+                        <h1 class="text-center">🌟 Pandit Consultation</h1>
+                        <div id="timer-message" class="text-danger text-center"></div>
+                        <div id="timer" class="text-center mb-3">30</div>
+                        <div id="chat-box" class="chat-box">
+                            <div class="chat-header">
+                                <div>Timer: <span id="timer-display">30</span> seconds</div>
+                            </div>
+                            <div id="readings" class="mt-4">${previousChatContent}</div>
+                            <div class="input-group mt-3">
+                                <textarea class="form-control" id="user-input" placeholder="Type your message..." required></textarea>
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary send-btn" onclick="sendMessage()">Send</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                timeLeft = 60; 
+                startTimer(); 
+                chatActive = true; 
+                document.getElementById('chat-box').style.display = 'block'; // Show chat box after recharge
+            }, 2000); 
+        }
+
+        function generateReading(question) {
+            const category = categorizeQuestion(question);
+            const readings = responses[category] || ["Please ask a different question."];
+            
+            return readings[Math.floor(Math.random() * readings.length)];
+        }
+        
+
+        function categorizeQuestion(question) {
+            const lowerCaseQuestion = question.toLowerCase();
+            
+            // Specific responses for marriage-related questions
+            if (lowerCaseQuestion.includes("when will i get married") || 
+                lowerCaseQuestion.includes("when will I marry") || 
+                lowerCaseQuestion.includes("till when will I get married") || 
+                lowerCaseQuestion.includes("when will I get engaged") || 
+                lowerCaseQuestion.includes("till when will I get engaged") || 
+                lowerCaseQuestion.includes("marriage")) {
+                return "Marriage"; 
+            } else if (lowerCaseQuestion.includes("job") || 
+                       lowerCaseQuestion.includes("career") || 
+                       lowerCaseQuestion.includes("employment") || 
+                       lowerCaseQuestion.includes("field") || 
+                       lowerCaseQuestion.includes("sector") || 
+                       lowerCaseQuestion.includes("stream")) {
+                return "Job";
+            } else if (lowerCaseQuestion.includes("money") || 
+                       lowerCaseQuestion.includes("financial") || 
+                       lowerCaseQuestion.includes("finance")) {
+                return "Money";
+            } else if (lowerCaseQuestion.includes("love")) {
+                return "Love Life";
+            } else if (lowerCaseQuestion.includes("health")) {
+                return "Health";
+            }
+            
+            return "General"; 
+        }
+        
+
+        function sendMessage() {
+            const userInput = document.getElementById('user-input');
+            const question = userInput.value.trim();
+
+            if (question === '') return;
+
+            const readingOutput = document.createElement('div');
+            readingOutput.className = 'alert alert-info mt-3 reading';
+            readingOutput.innerHTML = `
+                <div class="user-question">
+                    <strong>User:</strong> ${question}
+                </div>
+                <div class="reading-response">
+                    <strong>Assistant:</strong> ${generateReading(question)}
+                </div>
+            `;
+            document.getElementById('readings').appendChild(readingOutput);
+
+            previousChatContent += `
+                <div class="user-question">
+                    <strong>User:</strong> ${question}
+                </div>
+                <div class="reading-response">
+                    <strong>Assistant:</strong> ${generateReading(question)}
+                </div>
+            `;
+            userInput.value = '';
+
+            setTimeout(() => {
+                readingOutput.classList.add('visible');
+                document.getElementById('readings').scrollTop = document.getElementById('readings').scrollHeight
+            }, 10);
+        }
+
+        function handleUserDetails(event) {
+            event.preventDefault(); 
+        
+            // Get user details from the form
+            const name = document.querySelector('input[name="name"]').value;
+            const dob = document.querySelector('input[name="dob"]').value;
+            const tob = document.querySelector('input[name="birth_time"]').value;
+            const state = document.getElementById('state').value;
+            const city = document.getElementById('city').value;
+        
+            // Create the birth details message
+            const birthDetailsMessage = `
+                <div class="birth-details">
+                    <h4>Hi,</h4>
+                    <h4>Below are Your details</h4>
+                    <p><strong>Name:</strong> ${name}</p>
+                    <p><strong>Date of Birth:</strong> ${dob}</p>
+                    <p><strong>Time of Birth:</strong> ${tob}</p>
+                    <p><strong>Place of Birth:</strong> ${city}, ${state}</p>
+                </div>
+            `;
+        
+            // Create the greeting message
+            const greetingMessage = `
+                <div class="greeting-message">
+                    <h3>Welcome to Hello Astro, ${name}!</h3>
+                    <p>Please share your question!</p>
+                </div>
+            `;
+        
+            // Hide the user details form and show the chat box
+            document.getElementById('user-details-form').style.display = 'none';
+            document.getElementById('chat-box').style.display = 'block'; 
+        
+            // Append the birth details message and greeting message to the chat box
+            const readingsDiv = document.getElementById('readings');
+            readingsDiv.innerHTML += `<div class="alert alert-info mt-3 greeting-box">${birthDetailsMessage}</div>`;
+            readingsDiv.innerHTML += `<div class="alert alert-success mt-3 greeting-box">${greetingMessage}</div>`;
+        }
+        
+        
+
+        window.onload = () => {
+            startTimer();
+        };
+    </script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">🌟 Pandit Consultation</h1>
+        <div id="timer-message" class="text-danger text-center"></div>
+        <div id="timer" class="text-center mb-3 ">30</div>
+        
+        <form id="user-details-form" onsubmit="handleUserDetails(event)" class="form-section">
+            <div class="form-group">
+                <label for="name">Full Name:</label>
+                <input type="text" class="form-control" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="dob">Date of Birth:</label>
+                <input type="date" class="form-control" name="dob" required>
+            </div>
+            <div class="form-group">
+                <label for="birth_time">Birth Time:</label>
+                <input type="time" class="form-control" name="birth_time" required>
+            </div>
+            <div class="form-group">
+                <label for="state">Select State:</label>
+                <select class="form-control" name="state" id="state" onchange="updateCities()" required>
+                    <option value="">Select State</option>
+                    <option value="Andhra Pradesh">Andhra Pradesh</option>
+                    <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                    <option value="Assam">Assam</option>
+                    <option value="Bihar">Bihar</option>
+                    <option value="Chhattisgarh">Chhattisgarh</option>
+                    <option value="Goa">Goa</option>
+                    <option value="Gujarat">Gujarat</option>
+                    <option value="Haryana">Haryana</option>
+                    <option value="Himachal Pradesh">Himachal Pradesh</option>
+                    <option value="Jharkhand">Jharkhand</option>
+                    <option value="Karnataka">Karnataka</option>
+                    <option value="Kerala">Kerala</option>
+                    <option value="Madhya Pradesh">Madhya Pradesh</option>
+                    <option value="Maharashtra">Maharashtra</option>
+                    <option value="Manipur">Manipur</option>
+                    <option value="Meghalaya">Meghalaya</option>
+                    <option value="Mizoram">Mizoram</option>
+                    <option value="Nagaland">Nagaland</option>
+                    <option value="Odisha">Odisha</option>
+                    <option value="Punjab">Punjab</option>
+                    <option value="Rajasthan">Rajasthan</option>
+                    <option value="Sikkim">Sikkim</option>
+                    <option value="Tamil Nadu">Tamil Nadu</option>
+                    <option value="Telangana">Telangana</option>
+                    <option value="Tripura">Tripura</option>
+                    <option value="Uttar Pradesh">Uttar Pradesh</option>
+                    <option value="Uttarakhand">Uttarakhand</option>
+                    <option value="West Bengal">West Bengal</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="city">Select City:</label>
+                <select class="form-control" name="city" id="city" required>
+                    <option value="">Select City</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit Details</button>
+        </form>
+
+        <div id="chat-box" class="chat-box">
+            <div class="chat-header">
+                <div>Timer: <span id="timer-display">30</span> seconds</div>
+            </div>
+            <div id="readings" class="mt-4"></div>
+            <div class="input-group mt-3">
+                <textarea class="form-control" id="user-input" placeholder="Type your message..." required></textarea>
+                <div class="input-group-append">
+                    <button class="btn btn-primary send-btn" onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Astrology Checker</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>🪐 Astrology Checker</h1>
+        <p><strong>Connection Status:</strong> {{ connection_status }}</p>
+
+        <form method="POST">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="dob">Date of Birth (DD/MM/YYYY):</label>
+                <input type="text" class="form-control" id="dob" name="dob" required>
+            </div>
+
+            <div class="form-group">
+                <label for="tob">Time of Birth (HH:MM):</label>
+                <input type="text" class="form-control" id="tob" name="tob" required>
+            </div>
+
+            <div class="form-group">
+                <label for="country">Country:</label>
+                <select id="country" name="country" class="form-control" required>
+                    <option value="">Select a country</option>
+                    {% for country in place_coordinates.keys() %}
+                    <option value="{{ country }}">{{ country }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="state">State:</label>
+                <select id="state" name="state" class="form-control" required>
+                    <option value="">Select a state</option>
+                    <!-- States will be populated based on selected country -->
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="place">Place:</label>
+                <select id="place" name="place" class="form-control" required>
+                    <option value="">Select a place</option>
+                    <!-- Places will be populated based on selected state -->
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="lat">Latitude:</label>
+                <input type="number" class="form-control" id="lat" name="lat" step="any" required readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="lon">Longitude:</label>
+                <input type="number" class="form-control" id="lon" name="lon" step="any" required readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="tz">Timezone:</label>
+                <input type="number" class="form-control" id="tz" name="tz" value="5.5" step="any" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Check Horoscope</button>
+        </form>
+
+        {% if horoscope %}
+        <h2 class="mt-4">Horoscope Result:</h2>
+        <pre>{{ horoscope }}</pre>
+        {% endif %}
+    </div>
+
+    <script>
+        // Pass the place_coordinates from Flask to JavaScript
+        const placeCoordinates = {{ place_coordinates | tojson }};
+
+        // Update states based on selected country
+        document.getElementById('country').addEventListener('change', function() {
+            const country = this.value;
+            const states = placeCoordinates[country] ? Object.keys(placeCoordinates[country]) : [];
+            
+            const stateSelect = document.getElementById('state');
+            stateSelect.innerHTML = '<option value="">Select a state</option>'; // Reset states
+
+            states.forEach(state => {
+                stateSelect.innerHTML += `<option value="${state}">${state}</option>`;
+            });
+
+            // Reset places and coordinates when country changes
+            document.getElementById('place').innerHTML = '<option value="">Select a place</option>';
+            document.getElementById('lat').value = ''; // Reset latitude
+            document.getElementById('lon').value = ''; // Reset longitude
+        });
+
+        // Update places and coordinates based on selected state
+        document.getElementById('state').addEventListener('change', function() {
+            const country = document.getElementById('country').value;
+            const state = this.value;
+            const places = placeCoordinates[country][state] || {};
+
+            const placeSelect = document.getElementById('place');
+            placeSelect.innerHTML = '<option value="">Select a place</option>'; // Reset places
+
+            Object.keys(places).forEach(place => {
+                placeSelect.innerHTML += `<option value="${place}">${place}</option>`;
+            });
+
+            // Reset latitude and longitude when state changes
+            document.getElementById('lat').value = '';
+            document.getElementById('lon').value = '';
+        });
+
+        // Update latitude and longitude based on selected place
+        document.getElementById('place').addEventListener('change', function() {
+            const country = document.getElementById('country').value;
+            const state = document.getElementById('state').value;
+            const place = this.value;
+
+            if (place) {
+                const coordinates = placeCoordinates[country][state][place];
+                document.getElementById('lat').value = coordinates.lat;
+                document.getElementById('lon').value = coordinates.lon;
+            }
+        });
+    </script>
+</body>
+</html>

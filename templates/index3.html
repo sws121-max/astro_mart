@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Astrology App</title>
+</head>
+<body>
+    <h1>Astrology and Numerology App</h1>
+    <form method="POST">
+        <!-- Form fields for name, dob, tob, lat, lon, tz, and action -->
+        <input type="text" name="name" placeholder="Name" required>
+        <input type="text" name="dob" placeholder="DOB (DD/MM/YYYY)" required>
+        <input type="text" name="tob" placeholder="Time of Birth (HH:MM)" required>
+        <input type="text" name="lat" placeholder="Latitude" required>
+        <input type="text" name="lon" placeholder="Longitude" required>
+        <input type="text" name="tz" placeholder="Timezone" required>
+        <select name="action">
+            <option value="check_dosha">Check Dosha</option>
+            <option value="check_dasha">Check Dasha</option>
+            <option value="check_horoscope">Check Horoscope</option>
+            <option value="check_planet">Check Planet Report</option>
+            <option value="check_extended_horoscope">Check Extended Horoscope</option>
+            <option value="calculate_lucky_number">Calculate Lucky Number</option>
+            <option value="calculate_destiny_number">Calculate Destiny Number</option>
+        </select>
+        <button type="submit">Submit</button>
+    </form>
+
+    {% if result %}
+        <h2>Result:</h2>
+        <pre>{{ result }}</pre>
+    {% endif %}
+</body>
+</html>

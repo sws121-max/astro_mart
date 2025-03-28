@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horoscope Results</title>
+</head>
+<body>
+    <h1>Horoscope Results</h1>
+    {% for period, horoscope in results.items() %}
+        <h2>{{ period.capitalize() }}'s Horoscope</h2>
+        <p>{{ horoscope }}</p>
+    {% endfor %}
+    <a href="/">Generate Another Horoscope</a>
+</body>
+</html>

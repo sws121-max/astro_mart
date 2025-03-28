@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horoscope Generator</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Horoscope Generator</h1>
+        <div class="form-section">
+            <form method="POST" class="mb-4">
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="dob">Date of Birth (DD/MM/YYYY):</label>
+                    <input type="text" class="form-control" id="dob" name="dob" required>
+                </div>
+                <div class="form-group">
+                    <label for="birth_place">Place of Birth:</label>
+                    <input type="text" class="form-control" id="birth_place" name="birth_place" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Generate HORO</button>
+            </form>
+        </div>
+
+        {% if results %}
+        <h2 class="mt-5">Horoscope Results for {{ name }}</h2>
+        
+        <div class="report-section">
+            <h3>Yesterday's Horoscope</h3> 
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Details</th>
+                        <th>Zodiac Sign</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Love & Relationships</td>
+                        <td>
+                            <ul>
+                                {% for item in results.yesterday.horoscope['Love & Relationships'] %}
+                                <li>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td>{{ results.zodiac_sign }}</td>
+                    </tr>
+                    <tr>
+                        <td>Career</td>
+                        <td>
+                            <ul>
+                                {% for item in results.yesterday.horoscope['Career'] %}
+                                <li>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td>{{ results.zodiac_sign }}</td>
+                    </tr>
+                    <tr>
+                        <td>Health & Wellness</td>
+                        <td>
+                            <ul>
+                                {% for item in results.yesterday.horoscope['Health & Wellness'] %}
+                                <li>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td>{{ results.zodiac_sign }}</td>
+                    </tr>
+                    <tr>
+                        <td>Finance</td>
+                        <td>
+                            <ul>
+                                {% for item in results.yesterday.horoscope['Finance'] %}
+                                <li>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td>{{ results.zodiac_sign }}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Today's Horoscope:</h3>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Details</th>
+                        <th>Zodiac Sign</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Love & Relationships</td>
+                        <td>
+                            <ul>
+                                {% for item in results.today.horoscope['Love & Relationships'] %}
+                                <li>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td>{{ results.zodiac_sign }}</td>
+                    </tr>
+                    <tr>
+                        <td>Career</td>
+                        <td>
+                            <ul>
+                                {% for item in results.today.horoscope['Career'] %}
+                                <li>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td>{{ results.zodiac_sign }}</td>
+                    </tr>
+                    <tr>
+                        <td>Health & Wellness</td>
+                        <td>
+                            <ul>
+                                {% for item in results.today.horoscope['Health & Wellness'] %}
+                                <li>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td>{{ results.zodiac_sign }}</td>
+                    </tr>
+                    <tr>
+                        <td>Finance</td>
+                        <td>
+                            <ul>
+                                {% for item in results.today.horoscope['Finance'] %}
+                                <li>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td>{{ results.zodiac_sign }}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Tomorrow's Horoscope:</h3>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Details</th>
+                        <th>Zodiac Sign</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Love & Relationships</td>
+                        <td>
+                            <ul>
+                                {% for item in results.tomorrow.horoscope['Love & Relationships'] %}
+                                <li>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td>{{ results.zodiac_sign }}</td>
+                    </tr>
+                    <tr>
+                        <td>Career</td>
+                        <td>
+                            <ul>
+                                {% for item in results.tomorrow.horoscope['Career'] %}
+                                <li>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td>{{ results.zodiac_sign }}</td>
+                    </tr>
+                    <tr>
+                        <td>Health & Wellness</td>
+                        <td>
+                            <ul>
+                                {% for item in results.tomorrow.horoscope['Health & Wellness'] %}
+                                <li>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td>{{ results.zodiac_sign }}</td>
+                    </tr>
+                    <tr>
+                        <td>Finance</td>
+                        <td>
+                            <ul>
+                                {% for item in results.tomorrow.horoscope['Finance'] %}
+                                <li>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td>{{ results.zodiac_sign }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-warning mt-4">
+            Please fill in the details and click "Generate HORO" to see your horoscope.
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Astrology Checker</title>
+    <script>
+        // Place coordinates data
+        const placeCoordinates = {{ place_coordinates | tojson }};
+
+        function updateStates(country) {
+            const stateSelect = document.getElementById("state");
+            stateSelect.innerHTML = ""; // Clear previous options
+
+            if (country in placeCoordinates) {
+                const states = Object.keys(placeCoordinates[country]);
+                states.forEach(state => {
+                    const option = document.createElement("option");
+                    option.value = state;
+                    option.textContent = state;
+                    stateSelect.appendChild(option);
+                });
+            }
+            updatePlaces(stateSelect.value); // Update places as well
+        }
+
+        function updatePlaces(state) {
+            const countrySelect = document.getElementById("country");
+            const placeSelect = document.getElementById("place");
+            placeSelect.innerHTML = ""; // Clear previous options
+
+            if (countrySelect.value in placeCoordinates && state in placeCoordinates[countrySelect.value]) {
+                const places = Object.keys(placeCoordinates[countrySelect.value][state]);
+                places.forEach(place => {
+                    const option = document.createElement("option");
+                    option.value = place;
+                    option.textContent = place;
+                    placeSelect.appendChild(option);
+                });
+            }
+            updateLatLon(placeSelect.value); // Update latitude and longitude as well
+        }
+
+        function updateLatLon(place) {
+            const countrySelect = document.getElementById("country");
+            const stateSelect = document.getElementById("state");
+            const latInput = document.getElementById("lat");
+            const lonInput = document.getElementById("lon");
+
+            if (countrySelect.value in placeCoordinates && stateSelect.value in placeCoordinates[countrySelect.value] && place in placeCoordinates[countrySelect.value][stateSelect.value]) {
+                const coordinates = placeCoordinates[countrySelect.value][stateSelect.value][place];
+                latInput.value = coordinates.lat;
+                lonInput.value = coordinates.lon;
+            }
+        }
+
+        document.getElementById('astrologyForm').onsubmit = function(event) {
+            event.preventDefault(); // Prevent form submission
+
+            console.log("Form submitted"); // Log form submission
+            // Extract values from the form
+            const name = this.name.value;
+            const dob = this.dob.value;
+            const tob = this.tob.value;
+            const country = this.country.value;
+            const state = this.state.value;
+            const place = this.place.value;
+
+            fetch('/').then(response => response.text()).then(html => {
+                console.log("Response received"); // Log response
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+
+                // Check if result section exists
+                const result = doc.querySelector('#resultSection');
+                if (result) {
+                    const dosha = result.querySelector('#doshaReport').innerHTML;
+                    const dasha = result.querySelector('#dashaReport').innerHTML;
+                    const horoscope = result.querySelector('#horoscopeReport').innerHTML;
+                    const planet = result.querySelector('#planetReport').innerHTML;
+                    const luckyNumber = result.querySelector('#luckyNumberReport').innerHTML;
+                    const destinyNumber = result.querySelector('#destinyNumberReport').innerHTML;
+
+                    document.getElementById('doshaReport').innerHTML = `<strong>Dosha:</strong> ${dosha}`;
+                    document.getElementById('dashaReport').innerHTML = `<strong>Dasha:</strong> ${dasha}`;
+                    document.getElementById('horoscopeReport').innerHTML = `<strong>Horoscope:</strong> ${horoscope}`;
+                    document.getElementById('planetReport').innerHTML = `<strong>Planet Report:</strong> ${planet}`;
+                    document.getElementById('luckyNumberReport').innerHTML = `<strong>Lucky Number:</strong> ${luckyNumber}`;
+                    document.getElementById('destinyNumberReport').innerHTML = `<strong>Destiny Number:</strong> ${destinyNumber}`;
+
+                    // Show the report section
+                    document.getElementById('reportSection').style.display = 'block';
+                } else {
+                    console.error("Result section not found in the response");
+                }
+            }).catch(error => {
+                console.error("Error fetching data:", error);
+            });
+        };
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+        }
+        .report-section {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Astrology Checker</h1>
+<form id="astrologyForm" method="POST">
+    <label>Name:</label>
+    <input type="text" name="name" required><br>
+
+    <label>Date of Birth (DD/MM/YYYY):</label>
+    <input type="text" name="dob" placeholder="21/04/2021" required><br>
+
+    <label>Time of Birth (HH:MM):</label>
+    <input type="text" name="tob" placeholder="11:40" required><br>
+
+    <label>Country:</label>
+    <select id="country" name="country" onchange="updateStates(this.value)">
+        <option value="">Select Country</option>
+        {% for country in place_coordinates.keys() %}
+            <option value="{{ country }}">{{ country }}</option>
+        {% endfor %}
+    </select><br>
+
+    <label>State:</label>
+    <select id="state" name="state" onchange="updatePlaces(this.value)">
+        <option value="">Select State</option>
+        <!-- States will be populated based on selected country -->
+    </select><br>
+
+    <label>Place:</label>
+    <select id="place" name="place" onchange="updateLatLon(this.value)">
+        <option value="">Select Place</option>
+        <!-- Places will be populated based on selected state -->
+    </select><br>
+
+    <label>Latitude:</label>
+    <input type="number" id="lat" name="lat" step="any" readonly><br>
+
+    <label>Longitude:</label>
+    <input type="number" id="lon" name="lon" step="any" readonly><br>
+
+    <label>Timezone (e.g., 5.5 for India):</label>
+    <input type="number" name="tz" value="5.5" step="0.1"><br>
+
+    <input type="submit" value="Check Astrology">
+</form>
+
+<div class="report-section" id="reportSection" style="display: none;">
+    <h2>Astrology Report</h2>
+    <div id="doshaReport"></div>
+    <div id="dashaReport"></div>
+    <div id="horoscopeReport"></div>
+    <div id="planetReport"></div>
+    <div id="luckyNumberReport"></div>
+    <div id="destinyNumberReport"></div>
+</div>
+
+{% if result %}
+    <h2>Result:</h2>
+    <div>{{ result | safe }}</div>
+{% endif %}
+
+</body>
+</html>

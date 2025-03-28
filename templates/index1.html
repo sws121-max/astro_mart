@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horoscope Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        label {
+            display: inline-block;
+            width: 120px;
+            text-align: right;
+            margin-right: 10px;
+        }
+        input[type="text"], input[type="date"] {
+            width: 200px;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #000;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #ddd;
+        }
+    </style>
+</head>
+<body>
+    <h1>Horoscope Generator</h1>
+    <form action="/generate_horoscope" method="POST">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required><br><br>
+        <label for="dob">Date of Birth:</label>
+        <input type="date" id="dob" name="dob" required><br><br>
+        <label for="birth_place">Birth Place:</label>
+        <input type="text" id="birth_place" name="birth_place" required><br><br>
+        <button type="submit">Generate Horoscope</button>
+    </form>
+
+    <h2>Generated Horoscopes</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Date of Birth</th>
+                <th>Birth Place</th>
+                <th>Zodiac Sign</th>
+                <th>Yesterday</th>
+                <th>Today</th>
+                <th>Tomorrow</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for horoscope in horoscope_data %}
+            <tr>
+                <td>{{ horoscope.name }}</td>
+                <td>{{ horoscope.dob }}</td>
+                <td>{{ horoscope.birth_place }}</td>
+                <td>{{ horoscope.zodiac_sign }}</td>
+                <td>{{ horoscope.yesterday }}</td>
+                <td>{{ horoscope.today }}</td>
+                <td>{{ horoscope.tomorrow }}</td>
+                <td>{{ horoscope.timestamp }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
